@@ -1,17 +1,9 @@
 package io.github.sadeghit.dream.ui.screen
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -19,31 +11,12 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -51,18 +24,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.sadeghit.dream.data.dataStore.ThemeManager
 import io.github.sadeghit.dream.navigation.Screens
-import io.github.sadeghit.dream.ui.theme.AppBarBlue
-import io.github.sadeghit.dream.ui.theme.Dark
 import io.github.sadeghit.dream.viewModel.DreamViewModel
 import kotlinx.coroutines.launch
 
-// 🔹 تابع نرمال‌سازی برای حروف فارسی
-fun normalizeText(text: String): String {
-    return text
-        .replace("ي", "ی")
-        .replace("ك", "ک")
-        .trim()
-}
+fun normalizeText(text: String): String =
+    text.replace("ي", "ی").replace("ك", "ک").trim()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +40,6 @@ fun HomeScreen(
     val focusManager = LocalFocusManager.current
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val isDarkTheme = themeManager.isDarkTheme
 
     val dreams by viewModel.dream.collectAsState()
     val letters = dreams.map { it.letter }.distinct()
@@ -82,18 +47,16 @@ fun HomeScreen(
     var selectedLetter by remember { mutableStateOf("الف") }
     var searchQuery by remember { mutableStateOf("") }
 
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     val filteredWords = remember(searchQuery, selectedLetter, dreams) {
         val normalizedQuery = normalizeText(searchQuery)
         if (normalizedQuery.isBlank()) {
             dreams.firstOrNull { it.letter == selectedLetter }?.words ?: emptyList()
         } else {
             dreams.flatMap { it.words.orEmpty() }
-                .filter {
-                    normalizeText(it.word ?: "").contains(
-                        normalizedQuery,
-                        ignoreCase = true
-                    )
-                }
+                .filter { normalizeText(it.word ?: "").contains(normalizedQuery, ignoreCase = true) }
         }
     }
 
@@ -102,26 +65,25 @@ fun HomeScreen(
         drawerContent = {
             Column(
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(colorScheme.background)
                     .fillMaxHeight()
                     .width(250.dp)
                     .padding(16.dp)
             ) {
-                Text(text = "Drawer خالیه")
+                Text(
+                    text = "Drawer خالیه",
+                    style = typography.titleMedium.copy(color = colorScheme.onBackground)
+                )
             }
         }
     ) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("تعبیر خواب آبی", color = Color.White) },
+                    title = { Text("تعبیر خواب آبی", style = typography.titleLarge, color = colorScheme.onPrimary) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                Icons.Default.Menu,
-                                contentDescription = "Menu",
-                                tint = Color.White
-                            )
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorScheme.onPrimary)
                         }
                     },
                     actions = {
@@ -129,18 +91,13 @@ fun HomeScreen(
                             Icon(
                                 imageVector = if (themeManager.isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
                                 contentDescription = "تغییر تم",
-                                tint = Color.White
+                                tint = colorScheme.onPrimary
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (themeManager.isDarkTheme) Dark else AppBarBlue,
-                        titleContentColor = Color.White
-                    )
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.primary)
                 )
-
             }
-
         ) { padding ->
 
             Row(
@@ -150,12 +107,9 @@ fun HomeScreen(
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        focusManager.clearFocus()
-                    }
+                    ) { focusManager.clearFocus() }
             ) {
-
-                // 🔹 ستون کلمات و سرچ (سمت راست)
+                // 🔹 ستون کلمات
                 Column(
                     modifier = Modifier
                         .weight(0.7f)
@@ -165,42 +119,24 @@ fun HomeScreen(
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        label = {
-                            Text(
-                                "جستجو...",
-                                style = TextStyle(textDirection = TextDirection.Rtl),
-                                modifier = Modifier.fillMaxWidth() // حتماً اضافه کن تا راست‌چین شود
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                        label = { Text("جستجو...", style = typography.bodyMedium, textAlign = TextAlign.Right) },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                         singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(
-                            textAlign = TextAlign.Right,
-                            textDirection = TextDirection.Rtl // متن تایپ‌شده هم راست‌چین شود
-                        ),
+                        textStyle = typography.bodyMedium.copy(textAlign = TextAlign.Right, textDirection = TextDirection.Rtl),
                         trailingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
+                            Icon(Icons.Default.Search, contentDescription = "Search", tint = colorScheme.onSurface)
                         }
                     )
 
-
                     LazyColumn(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top,
                         modifier = Modifier.fillMaxSize()
                     ) {
-
                         if (filteredWords.isEmpty()) {
                             item {
                                 Text(
-                                    text = "کلمه‌ای یافت نشد ❌",
-                                    color = Color.Gray,
+                                    "کلمه‌ای یافت نشد ❌",
+                                    style = typography.bodyMedium.copy(color = colorScheme.onSurface.copy(alpha = 0.6f)),
                                     modifier = Modifier.padding(16.dp)
                                 )
                             }
@@ -211,29 +147,26 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            navController.navigate(
-                                                Screens.DreamDetail.createRoute(word.word ?: "")
-                                            )
+                                            navController.navigate(Screens.DreamDetail.createRoute(word.word ?: ""))
                                         }
                                         .padding(vertical = 6.dp)
                                 ) {
                                     Text(
                                         text = word.word ?: "",
-                                        color = if (isDarkTheme) Color.White else Color.Black // ← تغییر
+                                        style = typography.bodyLarge.copy(color = colorScheme.onBackground)
                                     )
                                     HorizontalDivider(
                                         modifier = Modifier.padding(top = 8.dp),
                                         thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                        color = colorScheme.outline.copy(alpha = 0.3f)
                                     )
                                 }
                             }
-
                         }
                     }
                 }
 
-                // 🔹 ستون حروف الفبا (سمت چپ)
+                // 🔹 ستون حروف
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
@@ -243,37 +176,28 @@ fun HomeScreen(
                         .padding(top = 16.dp, end = 8.dp)
                 ) {
                     items(letters) { letter ->
+                        val isSelected = selectedLetter == letter
+                        val bgColor = if (isSelected) colorScheme.secondaryContainer else Color.Transparent
+                        val textColor = if (isSelected) colorScheme.onSecondaryContainer else colorScheme.onBackground
+
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .background(bgColor)
                                 .clickable {
                                     focusManager.clearFocus()
                                     selectedLetter = letter
-                                    searchQuery = "" // ریست سرچ
+                                    searchQuery = ""
                                 }
-                                .background(
-                                    if (selectedLetter == letter)
-                                        if (isDarkTheme) Color(0xFF3C3C3C) else Color(0xFFE0E0E0)
-                                    else Color.Transparent
-                                )
                         ) {
                             Text(
                                 text = letter,
-                                color = if (selectedLetter == letter) {
-                                    if (isDarkTheme) Color.White else Color.Black
-                                } else {
-                                    if (isDarkTheme) Color.LightGray else Color.Black
-                                },
+                                style = typography.bodyLarge.copy(color = textColor),
                                 modifier = Modifier.padding(8.dp)
                             )
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                            )
+                            HorizontalDivider(thickness = 1.dp, color = colorScheme.outline.copy(alpha = 0.3f))
                         }
-
                     }
                 }
             }

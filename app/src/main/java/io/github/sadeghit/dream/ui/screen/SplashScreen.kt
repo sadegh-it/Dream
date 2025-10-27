@@ -57,7 +57,7 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "CREATED by SADE IT",
+            text = "CREATED by SADEGH IT",
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
