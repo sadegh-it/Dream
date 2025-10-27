@@ -30,16 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sadeghit.dream.data.dataStore.ThemeManager
 import io.github.sadeghit.dream.data.model.DreamWord
 import io.github.sadeghit.dream.ui.theme.AppBarBlue
-import io.github.sadeghit.dream.ui.theme.Vazirmatn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
