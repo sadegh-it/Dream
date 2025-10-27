@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +21,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.sadeghit.dream.data.dataStore.ThemeManager
 import io.github.sadeghit.dream.navigation.Screens
+import io.github.sadeghit.dream.ui.theme.AppBarBlue
+import io.github.sadeghit.dream.ui.theme.Dark
 import io.github.sadeghit.dream.viewModel.DreamViewModel
 import kotlinx.coroutines.launch
 
@@ -47,6 +46,7 @@ fun HomeScreen(
     var selectedLetter by remember { mutableStateOf("الف") }
     var searchQuery by remember { mutableStateOf("") }
 
+    val isDarkTheme = themeManager.isDarkTheme
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
@@ -80,26 +80,28 @@ fun HomeScreen(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("تعبیر خواب آبی", style = typography.titleLarge, color = colorScheme.onPrimary) },
+                    title = { Text("تعبیر خواب", style = typography.titleLarge, color = Color.White) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorScheme.onPrimary)
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint =  Color.White)
                         }
                     },
                     actions = {
                         IconButton(onClick = { themeManager.toggleTheme() }) {
                             Icon(
-                                imageVector = if (themeManager.isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
+                                imageVector = if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
                                 contentDescription = "تغییر تم",
-                                tint = colorScheme.onPrimary
+                                tint =  Color.White
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.primary)
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = if (isDarkTheme) Dark else AppBarBlue,
+                        titleContentColor = Color.White
+                    )
                 )
             }
         ) { padding ->
-
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -109,7 +111,7 @@ fun HomeScreen(
                         interactionSource = remember { MutableInteractionSource() }
                     ) { focusManager.clearFocus() }
             ) {
-                // 🔹 ستون کلمات
+                // ستون کلمات
                 Column(
                     modifier = Modifier
                         .weight(0.7f)
@@ -155,7 +157,7 @@ fun HomeScreen(
                                         text = word.word ?: "",
                                         style = typography.bodyLarge.copy(color = colorScheme.onBackground)
                                     )
-                                    HorizontalDivider(
+                                    Divider(
                                         modifier = Modifier.padding(top = 8.dp),
                                         thickness = 1.dp,
                                         color = colorScheme.outline.copy(alpha = 0.3f)
@@ -166,7 +168,7 @@ fun HomeScreen(
                     }
                 }
 
-                // 🔹 ستون حروف
+                // ستون حروف
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
@@ -196,7 +198,7 @@ fun HomeScreen(
                                 style = typography.bodyLarge.copy(color = textColor),
                                 modifier = Modifier.padding(8.dp)
                             )
-                            HorizontalDivider(thickness = 1.dp, color = colorScheme.outline.copy(alpha = 0.3f))
+                            Divider(thickness = 1.dp, color = colorScheme.outline.copy(alpha = 0.3f))
                         }
                     }
                 }

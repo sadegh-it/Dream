@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import io.github.sadeghit.dream.data.dataStore.ThemeManager
 import io.github.sadeghit.dream.data.model.DreamWord
 import io.github.sadeghit.dream.ui.theme.AppBarBlue
+import io.github.sadeghit.dream.ui.theme.Dark
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,7 +92,7 @@ fun DreamDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isDarkTheme) Color.Black else AppBarBlue,
+                    containerColor = if (isDarkTheme) Dark else AppBarBlue,
                     titleContentColor = Color.White
                 )
             )
