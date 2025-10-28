@@ -29,7 +29,7 @@ val Typography = Typography(
     bodyMedium = TextStyle(
         fontFamily = Vazirmatn,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
+        fontSize = 16.sp,
         lineHeight = 26.sp
     ),
     labelLarge = TextStyle(
