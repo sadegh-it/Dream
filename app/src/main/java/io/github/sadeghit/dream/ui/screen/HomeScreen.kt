@@ -1,5 +1,6 @@
 package io.github.sadeghit.dream.ui.screen
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -25,6 +25,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -41,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
@@ -48,7 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.sadeghit.dream.data.dataStore.ThemeManager
+import io.github.sadeghit.dream.navigation.DrawerItem
 import io.github.sadeghit.dream.navigation.Screens
+import io.github.sadeghit.dream.ui.component.Drawer
 import io.github.sadeghit.dream.ui.theme.AppBarBlue
 import io.github.sadeghit.dream.ui.theme.Dark
 import io.github.sadeghit.dream.viewModel.DreamViewModel
@@ -64,6 +69,7 @@ fun HomeScreen(
     themeManager: ThemeManager,
     viewModel: DreamViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -75,8 +81,8 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     val isDarkTheme = themeManager.isDarkTheme
-    val colorScheme = MaterialTheme.colorScheme
-    val typography = MaterialTheme.typography
+
+
 
     val filteredWords = remember(searchQuery, selectedLetter, dreams) {
         val normalizedQuery = normalizeText(searchQuery)
@@ -92,22 +98,29 @@ fun HomeScreen(
                 }
         }
     }
+    var selectedDrawerItem by remember { mutableStateOf<DrawerItem>(DrawerItem.Home) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            Column(
-                modifier = Modifier
-                    .background(colorScheme.background)
-                    .fillMaxHeight()
-                    .width(250.dp)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Drawer خالیه",
-                    style = typography.titleMedium.copy(color = colorScheme.onBackground)
-                )
-            }
+            Drawer(
+                currentItem = selectedDrawerItem,
+                onItemClick = { item ->
+                    selectedDrawerItem = item
+                    scope.launch { drawerState.close() }
+
+                    when (item) {
+                        DrawerItem.Home -> navController.navigate("home")
+                        DrawerItem.Favorites -> navController.navigate("favorites")
+                        DrawerItem.Settings -> navController.navigate("settings")
+                        DrawerItem.Resources -> navController.navigate("resources")
+                        DrawerItem.Website -> navController.navigate("website")
+                        DrawerItem.Exit -> {
+                            (context as? Activity)?.finish()
+                        }
+                    }
+                }
+            )
         }
     )
     {

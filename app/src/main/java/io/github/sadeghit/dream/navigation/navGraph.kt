@@ -27,7 +27,7 @@ fun SetupNavigation(themeManager: ThemeManager) {
 
     NavHost(
         navController = navController,
-        startDestination = Screens.SplashScreen.route
+        startDestination = Screens.Home.route
     ) {
         composable(route = Screens.SplashScreen.route) {
             SplashScreen(navController = navController)
