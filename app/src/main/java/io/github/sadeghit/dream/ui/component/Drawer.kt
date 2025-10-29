@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -25,13 +26,13 @@ import io.github.sadeghit.dream.navigation.DrawerItem
 
 @Composable
 fun Drawer(
-    currentItem: DrawerItem = DrawerItem.Home,
+    currentItem: DrawerItem = DrawerItem.Times,
     onItemClick: (DrawerItem) -> Unit
 ) {
 
 
     val items = listOf(
-        DrawerItem.Home,
+        DrawerItem.Times,
         DrawerItem.Favorites,
         DrawerItem.Settings,
         DrawerItem.Resources,
@@ -85,7 +86,14 @@ fun Drawer(
                     text = item.title,
                     style = typography.bodyLarge.copy(color = textColor)
                 )
+
+
             }
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+            )
         }
     }
 }

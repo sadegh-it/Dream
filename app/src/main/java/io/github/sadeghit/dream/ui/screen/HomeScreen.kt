@@ -1,60 +1,46 @@
 package io.github.sadeghit.dream.ui.screen
 
 import android.app.Activity
-import androidx.compose.foundation.background
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.sadeghit.dream.data.dataStore.ThemeManager
 import io.github.sadeghit.dream.navigation.DrawerItem
 import io.github.sadeghit.dream.navigation.Screens
 import io.github.sadeghit.dream.ui.component.Drawer
-import io.github.sadeghit.dream.ui.theme.AppBarBlue
-import io.github.sadeghit.dream.ui.theme.Dark
+import io.github.sadeghit.dream.ui.component.DreamTopBar
+import io.github.sadeghit.dream.ui.component.LetterList
+import io.github.sadeghit.dream.ui.component.SearchBar
+import io.github.sadeghit.dream.ui.component.WordList
 import io.github.sadeghit.dream.viewModel.DreamViewModel
 import kotlinx.coroutines.launch
 
@@ -74,30 +60,37 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     val dreams by viewModel.dream.collectAsState()
-    val letters = dreams.map { it.letter }.distinct()
+    val letters = dreams.map { it.letter }
 
-    var selectedLetter by remember { mutableStateOf("الف") }
+    val backStackEntry = navController.currentBackStackEntry
+    val savedLetter = backStackEntry?.savedStateHandle?.get<String>("selected_letter")
+
+    var selectedLetter by remember(savedLetter, dreams) {
+        mutableStateOf(
+            savedLetter ?: if (dreams.isNotEmpty()) dreams.first().letter else ""
+        )
+    }
+
+    LaunchedEffect(dreams) {
+        if (dreams.isNotEmpty() && selectedLetter.isEmpty()) {
+            selectedLetter = dreams.first().letter
+        }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
 
     val isDarkTheme = themeManager.isDarkTheme
-    val colorScheme = MaterialTheme.colorScheme
-    val typography = MaterialTheme.typography
 
-    val filteredWords = remember(searchQuery, selectedLetter, dreams) {
-        val normalizedQuery = normalizeText(searchQuery)
-        if (normalizedQuery.isBlank()) {
-            dreams.firstOrNull { it.letter == selectedLetter }?.words ?: emptyList()
-        } else {
-            dreams.flatMap { it.words.orEmpty() }
-                .filter {
-                    normalizeText(it.word ?: "").contains(
-                        normalizedQuery,
-                        ignoreCase = true
-                    )
-                }
-        }
+
+    val filteredWords = if (searchQuery.isBlank()) {
+        dreams.firstOrNull { it.letter == selectedLetter }?.words.orEmpty()
+    } else {
+        val q = normalizeText(searchQuery)
+        dreams
+            .flatMap { it.words.orEmpty() }
+            .filter { normalizeText(it.word ?: "").contains(q, ignoreCase = true) }
     }
-    var selectedDrawerItem by remember {  mutableStateOf<DrawerItem>(DrawerItem.Home) }
+    var selectedDrawerItem by remember { mutableStateOf<DrawerItem>(DrawerItem.Times) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -105,17 +98,27 @@ fun HomeScreen(
             Drawer(
                 currentItem = selectedDrawerItem,
                 onItemClick = { item ->
-                    selectedDrawerItem = item
                     scope.launch { drawerState.close() }
-
                     when (item) {
-                        DrawerItem.Home -> navController.navigate("home")
+                        DrawerItem.Times -> navController.navigate(Screens.Times.route)
                         DrawerItem.Favorites -> navController.navigate(Screens.Favorites.route)
-                        DrawerItem.Settings -> navController.navigate("settings")
-                        DrawerItem.Resources -> navController.navigate("resources")
-                        DrawerItem.Website -> navController.navigate("website")
-                        DrawerItem.Exit -> { (context as? Activity)?.finish() }
+                        DrawerItem.Settings -> { /* TODO: SettingsScreen */
+                        }
+
+                        DrawerItem.Resources -> { val intent =
+                            Intent(Intent.ACTION_VIEW, "https://setare.com/c/17/".toUri())
+                            context.startActivity(intent)
+                        }
+
+                        DrawerItem.Website -> {
+                            val intent =
+                                Intent(Intent.ACTION_VIEW, "https://sadegh-it.github.io".toUri())
+                            context.startActivity(intent)
+                        }
+
+                        DrawerItem.Exit -> (context as Activity).finish()
                     }
+                    selectedDrawerItem = item
                 }
             )
         }
@@ -123,36 +126,15 @@ fun HomeScreen(
     {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            "تعبیر خواب",
-                            style = typography.titleLarge,
-                            color = Color.White
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                Icons.Default.Menu,
-                                contentDescription = "Menu",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { themeManager.toggleTheme() }) {
-                            Icon(
-                                imageVector = if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
-                                contentDescription = "تغییر تم",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (isDarkTheme) Dark else AppBarBlue,
-                        titleContentColor = Color.White
-                    )
+                DreamTopBar(
+                    title = "تعبیر خواب آبی",
+                    navController = navController,
+                    isDarkTheme = isDarkTheme,
+                    navigationIcon = Icons.Default.Menu,
+                    onNavigationClick = { scope.launch { drawerState.open() } },
+                    actionIcon = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                    actionContentDescription = if (isDarkTheme) "تم روشن" else "تم تاریک",
+                    onActionClick = { themeManager.toggleTheme() }
                 )
             }
         ) { padding ->
@@ -172,122 +154,35 @@ fun HomeScreen(
                         .fillMaxHeight()
                         .padding(8.dp)
                 ) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        label = {
-                            Text(
-                                "جستجو...",
-                                style = typography.bodyMedium.copy(
-                                    textAlign = TextAlign.Right,
-                                    textDirection = TextDirection.Rtl
-                                ),
-                                modifier = Modifier.fillMaxWidth()
+                    SearchBar(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it })
+
+
+                    WordList(
+                        words = filteredWords,
+                        onWordClick = { word ->
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "selected_letter",
+                                selectedLetter
                             )
+                            navController.navigate(Screens.DreamDetail.createRoute(word.word ?: ""))
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        singleLine = true,
-                        textStyle = typography.bodyMedium.copy(
-                            textAlign = TextAlign.Right,
-                            textDirection = TextDirection.Rtl
-                        ),
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = colorScheme.onSurface
-                            )
-                        }
+                        modifier = Modifier.weight(0.7f)
                     )
-
-
-                    LazyColumn(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        if (filteredWords.isEmpty()) {
-                            item {
-                                Text(
-                                    "کلمه‌ای یافت نشد ❌",
-                                    style = typography.bodyMedium.copy(
-                                        color = colorScheme.onSurface.copy(
-                                            alpha = 0.6f
-                                        )
-                                    ),
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        } else {
-                            items(filteredWords) { word ->
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            navController.navigate(
-                                                Screens.DreamDetail.createRoute(
-                                                    word.word ?: ""
-                                                )
-                                            )
-                                        }
-                                        .padding(vertical = 6.dp)
-                                ) {
-                                    Text(
-                                        text = word.word ?: "",
-                                        style = typography.bodyLarge.copy(color = colorScheme.onBackground)
-                                    )
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(top = 8.dp),
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                    )
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // ستون حروف
-                LazyColumn(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .weight(0.3f)
-                        .fillMaxSize()
-                        .padding(top = 16.dp, end = 8.dp)
-                ) {
-                    items(letters) { letter ->
-                        val isSelected = selectedLetter == letter
-                        val bgColor =
-                            if (isSelected) colorScheme.secondaryContainer else Color.Transparent
-                        val textColor =
-                            if (isSelected) colorScheme.onSecondaryContainer else colorScheme.onBackground
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(bgColor)
-                                .clickable {
-                                    focusManager.clearFocus()
-                                    selectedLetter = letter
-                                    searchQuery = ""
-                                }
-                        ) {
-                            Text(
-                                text = letter,
-                                style = typography.bodyLarge.copy(color = textColor),
-                                modifier = Modifier.padding(8.dp)
-                            )
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                            )
-                        }
-                    }
-                }
+                LetterList(
+                    letters = letters,
+                    selectedLetter = selectedLetter,
+                    onLetterClick = {
+                        focusManager.clearFocus()
+                        selectedLetter = it
+                        searchQuery = ""
+                    },
+                    modifier = Modifier.weight(0.3f)
+                )
             }
         }
     }

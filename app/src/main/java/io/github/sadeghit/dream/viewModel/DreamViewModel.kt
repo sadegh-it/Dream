@@ -14,17 +14,24 @@ import javax.inject.Inject
 class DreamViewModel @Inject constructor(
     private val repository: DreamRepository
 ) : ViewModel() {
+
     private val _dream = MutableStateFlow<List<DreamLetter>>(emptyList())
     val dream: StateFlow<List<DreamLetter>> = _dream
 
-    init {
-        loadDreams()
-    }
+    init { loadDreams() }
 
     private fun loadDreams() {
         viewModelScope.launch {
-            val data: List<DreamLetter> = repository.loadDreams()
-            _dream.value = data
+            val raw = repository.loadDreams()
+            // مرتب‌سازی یک‌بار در زمان لود
+            val sorted = raw
+                .sortedBy { it.letter }                     // حروف الفبا
+                .map { letter ->
+                    letter.copy(
+                        words = letter.words?.sortedBy { it.word } // کلمات داخل هر حرف
+                    )
+                }
+            _dream.value = sorted
         }
     }
 }
