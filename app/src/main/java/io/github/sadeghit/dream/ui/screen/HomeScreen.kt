@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -25,8 +26,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -81,8 +80,8 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     val isDarkTheme = themeManager.isDarkTheme
-
-
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
 
     val filteredWords = remember(searchQuery, selectedLetter, dreams) {
         val normalizedQuery = normalizeText(searchQuery)
@@ -98,7 +97,7 @@ fun HomeScreen(
                 }
         }
     }
-    var selectedDrawerItem by remember { mutableStateOf<DrawerItem>(DrawerItem.Home) }
+    var selectedDrawerItem by remember {  mutableStateOf<DrawerItem>(DrawerItem.Home) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -111,13 +110,11 @@ fun HomeScreen(
 
                     when (item) {
                         DrawerItem.Home -> navController.navigate("home")
-                        DrawerItem.Favorites -> navController.navigate("favorites")
+                        DrawerItem.Favorites -> navController.navigate(Screens.Favorites.route)
                         DrawerItem.Settings -> navController.navigate("settings")
                         DrawerItem.Resources -> navController.navigate("resources")
                         DrawerItem.Website -> navController.navigate("website")
-                        DrawerItem.Exit -> {
-                            (context as? Activity)?.finish()
-                        }
+                        DrawerItem.Exit -> { (context as? Activity)?.finish() }
                     }
                 }
             )

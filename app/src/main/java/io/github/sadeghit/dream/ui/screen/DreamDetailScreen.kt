@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,18 +40,25 @@ import io.github.sadeghit.dream.data.dataStore.ThemeManager
 import io.github.sadeghit.dream.data.model.DreamWord
 import io.github.sadeghit.dream.ui.theme.AppBarBlue
 import io.github.sadeghit.dream.ui.theme.Dark
+import io.github.sadeghit.dream.viewModel.FavoritesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DreamDetailScreen(
     navController: NavController,
     word: DreamWord,
-    themeManager: ThemeManager
+    themeManager: ThemeManager,
+    favoritesViewModel: FavoritesViewModel
 ) {
 
     val isDarkTheme = themeManager.isDarkTheme
     var isFavorite by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val favorites by favoritesViewModel.favorites
+    LaunchedEffect(favorites) {
+        isFavorite = word.word in favorites
+    }
 
 
 
@@ -75,13 +83,14 @@ fun DreamDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = {
+                        if (isFavorite) {
+                            favoritesViewModel.removeFavorite(word.word ?: "")
+                            Toast.makeText(context, "از علاقه‌مندی‌ها حذف شد ❌", Toast.LENGTH_SHORT).show()
+                        } else {
+                            favoritesViewModel.addFavorite(word.word ?: "")
+                            Toast.makeText(context, "به علاقه‌مندی‌ها اضافه شد ✅", Toast.LENGTH_SHORT).show()
+                        }
                         isFavorite = !isFavorite
-                        Toast.makeText(
-                            context,
-                            if (isFavorite) "به علاقه‌مندی‌ها اضافه شد ✅" else "از علاقه‌مندی‌ها حذف شد ❌",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
                     }) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
