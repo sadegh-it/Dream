@@ -41,11 +41,9 @@ import io.github.sadeghit.dream.ui.component.DreamTopBar
 import io.github.sadeghit.dream.ui.component.LetterList
 import io.github.sadeghit.dream.ui.component.SearchBar
 import io.github.sadeghit.dream.ui.component.WordList
+import io.github.sadeghit.dream.util.normalizeText
 import io.github.sadeghit.dream.viewModel.DreamViewModel
 import kotlinx.coroutines.launch
-
-fun normalizeText(text: String): String =
-    text.replace("ي", "ی").replace("ك", "ک").trim()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

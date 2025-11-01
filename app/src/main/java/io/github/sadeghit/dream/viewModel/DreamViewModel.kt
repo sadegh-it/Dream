@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sadeghit.dream.data.model.DreamLetter
 import io.github.sadeghit.dream.data.repository.DreamRepository
+import io.github.sadeghit.dream.util.PERSIAN_LETTER_ORDER
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,15 +26,19 @@ class DreamViewModel @Inject constructor(
     private fun loadDreams() {
         viewModelScope.launch {
             val raw = repository.loadDreams()
-            // مرتب‌سازی یک‌بار در زمان لود
+
             val sorted = raw
-                .sortedBy { it.letter }                     // حروف الفبا
+                .sortedWith(compareBy { letter ->
+                    val index = PERSIAN_LETTER_ORDER.indexOf(letter.letter)
+                    if (index != -1) index else PERSIAN_LETTER_ORDER.size
+                })
                 .map { letter ->
                     letter.copy(
-                        words = letter.words?.sortedBy { it.word } // کلمات داخل هر حرف
+                        words = letter.words?.sortedBy { it.word }
                     )
                 }
             _dream.value = sorted
         }
     }
+
 }
