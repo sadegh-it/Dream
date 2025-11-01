@@ -18,7 +18,9 @@ class DreamViewModel @Inject constructor(
     private val _dream = MutableStateFlow<List<DreamLetter>>(emptyList())
     val dream: StateFlow<List<DreamLetter>> = _dream
 
-    init { loadDreams() }
+    init {
+        loadDreams()
+    }
 
     private fun loadDreams() {
         viewModelScope.launch {

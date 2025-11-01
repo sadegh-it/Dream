@@ -14,10 +14,10 @@ sealed class DrawerItem(
     val title: String,
     val icon: ImageVector
 ) {
+    object Website : DrawerItem("طراح اپلیکیشن", Icons.Default.Public)
     object Times : DrawerItem("ساعت ها", Icons.Default.AccessTime)
     object Favorites : DrawerItem("علاقه‌مندی‌ها", Icons.Default.Favorite)
     object Settings : DrawerItem("تنظیمات", Icons.Default.Settings)
     object Resources : DrawerItem("منابع", Icons.Default.AutoStories)
-    object Website : DrawerItem("وبسایت", Icons.Default.Public)
     object Exit : DrawerItem("خروج", Icons.AutoMirrored.Filled.ExitToApp)
 }

@@ -40,6 +40,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
+
     fun clearFavorites() {
         viewModelScope.launch {
             favoritesDataStore.clearFavorites()

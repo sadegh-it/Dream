@@ -13,13 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sadeghit.dream.navigation.DrawerItem
 
@@ -55,7 +56,7 @@ fun Drawer(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "تعبیر خواب آبی 🌙",
+                text = "تعبیر خواب آبی 🌙", fontWeight = FontWeight.Bold,
                 style = typography.titleMedium.copy(color = colorScheme.onPrimaryContainer)
             )
         }
@@ -92,7 +93,7 @@ fun Drawer(
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
                 thickness = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                color = colorScheme.onSurface.copy(alpha = 0.3f)
             )
         }
     }

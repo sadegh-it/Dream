@@ -1,4 +1,3 @@
-
 package io.github.sadeghit.dream.data.repository
 
 import android.content.Context
@@ -8,9 +7,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.sadeghit.dream.data.model.TimeItem
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.io.bufferedReader
-import kotlin.io.readText
-import kotlin.io.use
 
 @Singleton
 class TimeRepository @Inject constructor(

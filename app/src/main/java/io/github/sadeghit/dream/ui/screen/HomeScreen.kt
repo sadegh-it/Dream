@@ -100,19 +100,32 @@ fun HomeScreen(
                 onItemClick = { item ->
                     scope.launch { drawerState.close() }
                     when (item) {
-                        DrawerItem.Times -> navController.navigate(Screens.Times.route)
-                        DrawerItem.Favorites -> navController.navigate(Screens.Favorites.route)
-                        DrawerItem.Settings -> { /* TODO: SettingsScreen */
-                        }
-
-                        DrawerItem.Resources -> { val intent =
-                            Intent(Intent.ACTION_VIEW, "https://setare.com/c/17/".toUri())
-                            context.startActivity(intent)
-                        }
-
                         DrawerItem.Website -> {
                             val intent =
                                 Intent(Intent.ACTION_VIEW, "https://sadegh-it.github.io".toUri())
+                            context.startActivity(intent)
+                        }
+
+                        DrawerItem.Times -> {
+                            navController.navigate(Screens.Times.route) {
+                                popUpTo(Screens.Home.route) { inclusive = false }
+                                launchSingleTop = true  // duplicate جلوگیری
+                            }
+                        }
+
+                        DrawerItem.Favorites -> {
+                            navController.navigate(Screens.Favorites.route) {
+                                popUpTo(Screens.Home.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
+
+                        DrawerItem.Settings -> { /* TODO: SettingsScreen */
+                        }
+
+                        DrawerItem.Resources -> {
+                            val intent =
+                                Intent(Intent.ACTION_VIEW, "https://setare.com/c/17/".toUri())
                             context.startActivity(intent)
                         }
 
@@ -166,7 +179,14 @@ fun HomeScreen(
                                 "selected_letter",
                                 selectedLetter
                             )
-                            navController.navigate(Screens.DreamDetail.createRoute(word.word ?: ""))
+                            navController.navigate(
+                                Screens.DreamDetail.createRoute(
+                                    word.word ?: ""
+                                )
+                            ) {
+                                popUpTo(Screens.Home.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
                         },
                         modifier = Modifier.weight(0.7f)
                     )

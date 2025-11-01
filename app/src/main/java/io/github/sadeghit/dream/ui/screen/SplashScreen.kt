@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     navController: NavController,
 
-) {
+    ) {
     // برای انیمیشن متن
     var visible by remember { mutableStateOf(false) }
     val alpha: Float by animateFloatAsState(
