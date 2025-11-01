@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sadeghit.dream.data.model.DreamLetter
 import io.github.sadeghit.dream.data.repository.DreamRepository
 import io.github.sadeghit.dream.util.PERSIAN_LETTER_ORDER
+import io.github.sadeghit.dream.util.normalizeText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -34,7 +35,9 @@ class DreamViewModel @Inject constructor(
                 })
                 .map { letter ->
                     letter.copy(
-                        words = letter.words?.sortedBy { it.word }
+                        words = letter.words?.sortedBy { word ->
+                            normalizeText(word.word ?: "")  // مرتب‌سازی بر اساس متن نرمال
+                        }
                     )
                 }
             _dream.value = sorted
