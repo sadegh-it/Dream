@@ -15,9 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -38,12 +42,13 @@ fun TimesScreen(
     Scaffold(
         topBar = {
             DreamTopBar(
-                title = "زمان‌ها",
+                title = "ساعت ‌ها",
                 navController = navController,
                 isDarkTheme = isDarkTheme
             )
         }
     ) { padding ->
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl){
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -54,9 +59,12 @@ fun TimesScreen(
                 item {
                     Text(
                         text = timeItem.word,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(16.dp)
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDirection = TextDirection.Rtl
+                        ),
+                        modifier = Modifier.padding(16.dp),
+
                     )
                 }
 
@@ -73,15 +81,20 @@ fun TimesScreen(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 text = entry.title,  // درست
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDirection = TextDirection.Rtl
+                                )
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = entry.meaning,  // درست
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textDirection = TextDirection.Rtl
+                                )
                             )
+
                         }
                     }
                 }
@@ -91,4 +104,5 @@ fun TimesScreen(
             }
         }
     }
+}
 }
